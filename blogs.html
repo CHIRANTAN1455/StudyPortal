@@ -69,9 +69,83 @@
     </div>
 
     <div class="container-fluid py-5">
-        <div class="container py-5">
-            <!-- Empty placeholder for future blog posts -->
-        </div>
+         <div class="container py-5">
+            <div class="row justify-content-between align-items-center mb-4 reveal">
+                <div class="col-lg-7">
+                    <h2 class="mb-2">Exam Protocol Updates</h2>
+                    <p class="text-muted mb-0">Post important notifications, rule changes, schedules, and official links. These updates are stored in your browser and can be edited or removed anytime.</p>
+                </div>
+                <div class="col-lg-5 text-lg-right mt-3 mt-lg-0">
+                    <span id="adminStatus" class="badge badge-secondary mr-2">Public Mode</span>
+                    <button id="adminLogin" class="btn btn-outline-primary mr-2">Admin Login</button>
+                    <button id="adminLogout" class="btn btn-outline-secondary mr-2" style="display:none;">Logout</button>
+                    <button id="clearAllUpdates" class="btn btn-outline-danger">Clear All</button>
+                </div>
+            </div>
+
+            <div class="row reveal">
+                <div class="col-lg-5 mb-4" id="adminFormWrap">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <h5 class="mb-3">Add / Edit Update</h5>
+                            <form id="updateForm">
+                                <input type="hidden" id="updateId">
+                                <div class="form-group">
+                                    <label for="title">Title</label>
+                                    <input type="text" id="title" class="form-control" placeholder="e.g., KVS Principal Exam: New Reporting Time" required>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="exam">Exam</label>
+                                        <select id="exam" class="form-control">
+                                            <option value="General">General</option>
+                                            <option value="KVS">KVS</option>
+                                            <option value="NVS">NVS</option>
+                                            <option value="EMRS">EMRS</option>
+                                            <option value="UPSC">UPSC</option>
+                                            <option value="UKPSC">UKPSC</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="date">Date</label>
+                                        <input type="date" id="date" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="link">Official Link (optional)</label>
+                                    <input type="url" id="link" class="form-control" placeholder="https://...">
+                                </div>
+                                <div class="form-group">
+                                    <label for="summary">Summary</label>
+                                    <textarea id="summary" rows="4" class="form-control" placeholder="Key instructions, changes, or timelines" required></textarea>
+                                </div>
+                                <div class="d-flex">
+                                    <button type="submit" class="btn btn-primary mr-2" id="saveBtn">Save Update</button>
+                                    <button type="button" class="btn btn-outline-secondary" id="resetBtn">Reset</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-7 mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">Latest Updates</h5>
+                        <div>
+                            <select id="filterExam" class="custom-select" style="max-width: 180px;">
+                                <option value="All">All Exams</option>
+                                <option value="General">General</option>
+                                <option value="KVS">KVS</option>
+                                <option value="NVS">NVS</option>
+                                <option value="EMRS">EMRS</option>
+                                <option value="UPSC">UPSC</option>
+                                <option value="UKPSC">UKPSC</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="updatesList" class="row"></div>
+                </div>
+            </div>
+         </div>
     </div>
 
     <div class="container-fluid position-relative overlay-top bg-dark text-white-50 py-5" style="margin-top: 90px;">
@@ -140,6 +214,138 @@
     <script src="lib/counterup/counterup.min.js"></script>
     <script src="lib/owlcarousel/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        (function() {
+            const STORAGE_KEY = 'examUpdates';
+            const ADMIN_FLAG = 'isAdmin';
+            const ADMIN_KEY_CONST = 'SP_ADMIN_2025'; // Change this to your own secret key
+            const form = document.getElementById('updateForm');
+            const updatesList = document.getElementById('updatesList');
+            const filterExam = document.getElementById('filterExam');
+            const clearAll = document.getElementById('clearAllUpdates');
+            const adminFormWrap = document.getElementById('adminFormWrap');
+            const adminLogin = document.getElementById('adminLogin');
+            const adminLogout = document.getElementById('adminLogout');
+            const adminStatus = document.getElementById('adminStatus');
+
+            const idEl = document.getElementById('updateId');
+            const titleEl = document.getElementById('title');
+            const examEl = document.getElementById('exam');
+            const dateEl = document.getElementById('date');
+            const linkEl = document.getElementById('link');
+            const summaryEl = document.getElementById('summary');
+            const resetBtn = document.getElementById('resetBtn');
+
+            function isAdmin(){ return sessionStorage.getItem(ADMIN_FLAG) === '1'; }
+            function setAdmin(flag){ if(flag){ sessionStorage.setItem(ADMIN_FLAG,'1'); } else { sessionStorage.removeItem(ADMIN_FLAG); } updateAdminUI(); render(); }
+            function updateAdminUI(){
+                const admin = isAdmin();
+                adminFormWrap.style.display = admin ? '' : 'none';
+                clearAll.style.display = admin ? '' : 'none';
+                adminLogin.style.display = admin ? 'none' : '';
+                adminLogout.style.display = admin ? '' : 'none';
+                adminStatus.className = 'badge ' + (admin ? 'badge-success' : 'badge-secondary');
+                adminStatus.textContent = admin ? 'Admin Mode' : 'Public Mode';
+            }
+
+            function readUpdates(){
+                try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch(e){ return []; }
+            }
+            function writeUpdates(list){ localStorage.setItem(STORAGE_KEY, JSON.stringify(list)); }
+            function uid(){ return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+
+            function sanitize(text){ return text.replace(/[<>]/g, ''); }
+
+            function render(){
+                const selected = filterExam ? filterExam.value : 'All';
+                const items = readUpdates()
+                    .sort((a,b) => (b.createdAt||0) - (a.createdAt||0))
+                    .filter(u => selected === 'All' ? true : u.exam === selected);
+                updatesList.innerHTML = items.map(u => {
+                    const d = u.date ? new Date(u.date).toLocaleDateString() : '';
+                    return `
+                    <div class="col-md-12 mb-3">
+                        <div class="card border-0 shadow-sm reveal">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <span class="badge badge-primary mr-2">${sanitize(u.exam||'General')}</span>
+                                        ${d ? `<small class="text-muted">${d}</small>` : ''}
+                                        <h5 class="mt-2 mb-2">${sanitize(u.title)}</h5>
+                                    </div>
+                                    ${isAdmin() ? `<div>
+                                        <button class="btn btn-sm btn-outline-secondary mr-2" data-action="edit" data-id="${u.id}">Edit</button>
+                                        <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${u.id}">Delete</button>
+                                    </div>` : ''}
+                                </div>
+                                <p class="mb-2">${sanitize(u.summary)}</p>
+                                ${u.link ? `<a class="btn btn-sm btn-primary" href="${u.link}" target="_blank" rel="noopener">Official Link</a>` : ''}
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+
+            form.addEventListener('submit', function(e){
+                e.preventDefault();
+                if(!isAdmin()) { alert('Admin login required to post updates.'); return; }
+                const data = {
+                    id: idEl.value || uid(),
+                    title: titleEl.value.trim(),
+                    exam: examEl.value,
+                    date: dateEl.value,
+                    link: linkEl.value.trim(),
+                    summary: summaryEl.value.trim(),
+                    createdAt: idEl.value ? (readUpdates().find(x=>x.id===idEl.value)?.createdAt||Date.now()) : Date.now()
+                };
+                if(!data.title || !data.summary){ return; }
+                const list = readUpdates();
+                const idx = list.findIndex(x => x.id === data.id);
+                if (idx >= 0) list[idx] = data; else list.push(data);
+                writeUpdates(list);
+                form.reset(); idEl.value = '';
+                render();
+            });
+
+            resetBtn.addEventListener('click', function(){ form.reset(); idEl.value = ''; });
+            filterExam.addEventListener('change', render);
+            clearAll.addEventListener('click', function(){ if(!isAdmin()) { alert('Admin login required.'); return; } if(confirm('Clear all updates?')){ writeUpdates([]); render(); }});
+
+            updatesList.addEventListener('click', function(e){
+                const btn = e.target.closest('button[data-action]');
+                if(!btn) return;
+                const action = btn.getAttribute('data-action');
+                const id = btn.getAttribute('data-id');
+                const list = readUpdates();
+                const idx = list.findIndex(x => x.id === id);
+                if(idx < 0) return;
+                if(!isAdmin()) { alert('Admin login required.'); return; }
+                if(action === 'delete'){
+                    if(confirm('Delete this update?')){ list.splice(idx,1); writeUpdates(list); render(); }
+                } else if(action === 'edit'){
+                    const u = list[idx];
+                    idEl.value = u.id;
+                    titleEl.value = u.title;
+                    examEl.value = u.exam || 'General';
+                    dateEl.value = u.date || '';
+                    linkEl.value = u.link || '';
+                    summaryEl.value = u.summary;
+                    window.scrollTo({ top: form.getBoundingClientRect().top + window.scrollY - 120, behavior: 'smooth' });
+                }
+            });
+
+            // Admin login/logout
+            adminLogin.addEventListener('click', function(){
+                const key = prompt('Enter Admin Key');
+                if (key && key === ADMIN_KEY_CONST) { setAdmin(true); }
+                else if (key !== null) { alert('Invalid key'); }
+            });
+            adminLogout.addEventListener('click', function(){ setAdmin(false); });
+
+            updateAdminUI();
+            render();
+        })();
+    </script>
 </body>
 
 </html>

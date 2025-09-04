@@ -799,7 +799,6 @@ pre code {
 .order-6 {
   order: 6;
 }
-
 .order-7 {
   order: 7;
 }
@@ -1594,14 +1593,12 @@ pre code {
 .table-primary > td {
   background-color: #c3d9f9;
 }
-
 .table-primary th,
 .table-primary td,
 .table-primary thead th,
 .table-primary tbody + tbody {
   border-color: #8fb9f5;
 }
-
 .table-hover .table-primary:hover {
   background-color: #accaf7;
 }
@@ -2394,14 +2391,12 @@ fieldset:disabled a.btn {
   background-color: #2878EB;
   border-color: #2878EB;
 }
-
 .btn-primary:not(:disabled):not(.disabled):active, .btn-primary:not(:disabled):not(.disabled).active,
 .show > .btn-primary.dropdown-toggle {
   color: #fff;
   background-color: #135fcd;
   border-color: #125ac1;
 }
-
 .btn-primary:not(:disabled):not(.disabled):active:focus, .btn-primary:not(:disabled):not(.disabled).active:focus,
 .show > .btn-primary.dropdown-toggle:focus {
   box-shadow: 0 0 0 0.2rem rgba(72, 140, 238, 0.5);
@@ -3192,14 +3187,12 @@ input[type="button"].btn-block {
   right: auto;
   bottom: auto;
 }
-
 .dropdown-divider {
   height: 0;
   margin: 0.5rem 0;
   overflow: hidden;
   border-top: 1px solid #e9ecef;
 }
-
 .dropdown-item {
   display: block;
   width: 100%;
@@ -4000,6 +3993,11 @@ input[type="button"].btn-block {
   transition: background-color 0.15s ease-in-out, border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
+/* Store integration styles */
+.border.rounded.shadow-sm.overflow-hidden iframe { background: #f8f9fa; }
+
+/* Refine hover states for primary/outline buttons */
+.btn-outline-primary:hover { color: #fff; }
 @media (prefers-reduced-motion: reduce) {
   .custom-control-label::before,
   .custom-file-label,
@@ -4792,17 +4790,10 @@ input[type="button"].btn-block {
   font-size: 1.25rem;
   line-height: 1.5;
 }
-
 .pagination-lg .page-item:first-child .page-link {
   border-top-left-radius: 0.3rem;
   border-bottom-left-radius: 0.3rem;
 }
-
-.pagination-lg .page-item:last-child .page-link {
-  border-top-right-radius: 0.3rem;
-  border-bottom-right-radius: 0.3rem;
-}
-
 .pagination-sm .page-link {
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
@@ -5591,11 +5582,9 @@ a.close.disabled {
   display: block;
   opacity: 1;
 }
-
 .toast.hide {
   display: none;
 }
-
 .toast-header {
   display: flex;
   align-items: center;
@@ -6388,13 +6377,11 @@ button.bg-success:focus {
 .bg-info {
   background-color: #17a2b8 !important;
 }
-
 a.bg-info:hover, a.bg-info:focus,
 button.bg-info:hover,
 button.bg-info:focus {
   background-color: #117a8b !important;
 }
-
 .bg-warning {
   background-color: #ffc107 !important;
 }
@@ -7143,7 +7130,6 @@ button.bg-dark:focus {
     align-self: stretch !important;
   }
 }
-
 @media (min-width: 992px) {
   .flex-lg-row {
     flex-direction: row !important;
@@ -7942,7 +7928,6 @@ button.bg-dark:focus {
 .m-n4 {
   margin: -1.5rem !important;
 }
-
 .mt-n4,
 .my-n4 {
   margin-top: -1.5rem !important;
@@ -8700,7 +8685,6 @@ button.bg-dark:focus {
     margin-left: auto !important;
   }
 }
-
 @media (min-width: 992px) {
   .m-lg-0 {
     margin: 0 !important;
@@ -9500,7 +9484,6 @@ button.bg-dark:focus {
 .font-weight-light {
   font-weight: 300 !important;
 }
-
 .font-weight-lighter {
   font-weight: lighter !important;
 }
